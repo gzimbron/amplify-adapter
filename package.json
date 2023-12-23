@@ -29,8 +29,8 @@
 		"build": "rimraf files && rollup -c",
 		"check": "tsc",
 		"lint": "prettier --check . --config ../../.prettierrc --ignore-path .gitignore",
-		"format": "pnpm lint --write",
-		"prepublishOnly": "pnpm build"
+		"format": "npm run lint --write",
+		"prepublishOnly": "npm run build"
 	},
 	"devDependencies": {
 		"@polka/url": "^1.0.0-next.21",
