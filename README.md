@@ -1,14 +1,6 @@
-# @sveltejs/adapter-node
+# amplify-adapter
 
-[Adapter](https://kit.svelte.dev/docs/adapters) for SvelteKit apps that generates a standalone Node server.
-
-## Docs
-
-[Docs](https://kit.svelte.dev/docs/adapter-node)
-
-## Changelog
-
-[The Changelog for this package is available on GitHub](https://github.com/sveltejs/kit/blob/master/packages/adapter-node/CHANGELOG.md).
+[Adapter](https://kit.svelte.dev/docs/adapters) for SvelteKit apps to Amplify Host CI/CD.
 
 ## License
 
