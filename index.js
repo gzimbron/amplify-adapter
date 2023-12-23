@@ -92,7 +92,6 @@ export default function (opts = {}) {
 				JSON.stringify({
 					version: 1,
 					framework: { name: 'SvelteKit', version: '0.0.3' },
-					imageSettings: {},
 					routes: [
 						{
 							path: '/*.*',
