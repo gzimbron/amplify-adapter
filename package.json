@@ -8,6 +8,9 @@
 		"type": "git",
 		"url": "git+https://github.com/gzimbron/amplify-adapter.git"
 	},
+	"publishConfig": {
+		"access": "public"
+	},
 	"exports": {
 		".": {
 			"types": "./index.d.ts",
