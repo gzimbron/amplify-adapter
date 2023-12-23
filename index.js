@@ -89,7 +89,38 @@ export default function (opts = {}) {
 
 			writeFileSync(
 				`${out}/deploy-manifest.json`,
-				readFileSync(`${srcFolder}/deploy-manifest.json`, 'utf-8')
+				JSON.stringify({
+					version: 1,
+					framework: { name: 'SvelteKit' },
+					imageSettings: {},
+					routes: [
+						{
+							path: '/*.*',
+							target: {
+								kind: 'Static',
+								cacheControl: 'public, max-age=2'
+							},
+							fallback: {
+								kind: 'Compute',
+								src: 'default'
+							}
+						},
+						{
+							path: '/*',
+							target: {
+								kind: 'Compute',
+								src: 'default'
+							}
+						}
+					],
+					computeResources: [
+						{
+							name: 'default',
+							runtime: 'nodejs18.x',
+							entrypoint: 'index.js'
+						}
+					]
+				})
 			);
 
 			// If polyfills aren't wanted then clear the file
