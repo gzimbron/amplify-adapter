@@ -1,9 +1,13 @@
 {
-	"name": "awsamplify-adapter",
+	"name": "amplify-adapter",
 	"version": "0.0.1",
 	"description": "Adapter for SvelteKit a+ Amplify CI-CD",
 	"license": "MIT",
 	"type": "module",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/gzimbron/amplify-adapter.git"
+	},
 	"exports": {
 		".": {
 			"types": "./index.d.ts",
