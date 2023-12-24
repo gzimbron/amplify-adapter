@@ -6,7 +6,6 @@ import { fileURLToPath } from 'node:url';
 import { rollup } from 'rollup';
 
 const files = fileURLToPath(new URL('./files', import.meta.url).href);
-const srcFolder = fileURLToPath(new URL('./src', import.meta.url).href);
 
 /** @type {import('.').default} */
 export default function (opts = {}) {
@@ -128,6 +127,8 @@ export default function (opts = {}) {
 			}
 
 			builder.copy('node_modules', `${computePath}/node_modules`, {});
+
+			builder.copy('package.json', `${computePath}/package.json`, {});
 		}
 	};
 }
