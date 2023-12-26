@@ -1,7 +1,7 @@
 {
 	"name": "amplify-adapter",
-	"version": "0.0.7",
-	"description": "Adapter for SvelteKit a+ Amplify CI-CD",
+	"version": "0.0.8",
+	"description": "Adapter for SvelteKit v1 + Amplify SSR CI/CD",
 	"license": "MIT",
 	"type": "module",
 	"repository": {
