@@ -1,6 +1,6 @@
 {
 	"name": "amplify-adapter",
-	"version": "0.0.9-alpha.1",
+	"version": "0.0.9-alpha.3",
 	"description": "Adapter for SvelteKit v2 + Amplify SSR CI/CD",
 	"license": "MIT",
 	"type": "module",
@@ -51,6 +51,6 @@
 		"rollup": "^3.7.0"
 	},
 	"peerDependencies": {
-		"@sveltejs/kit": "^2.0.0"
+		"@sveltejs/kit": "^1.0.0 || ^2.0.0"
 	}
 }
