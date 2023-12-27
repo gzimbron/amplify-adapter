@@ -4,6 +4,10 @@
 
 Este paquete se creó para adaptar el paquete @sveltejs/node-adapter para su uso con CI/CD en AWS Amplify + SSR. Este paquete incluye los siguientes cambios:
 
+## Video tutorial
+
+[![SvelteKit + Amplify CI/CD](./readme_assets/video.jpg)](https://youtu.be/wzA5w3Y67iI)
+
 ## Usage
 
 - Install with npm or yarn:
