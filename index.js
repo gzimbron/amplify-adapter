@@ -9,14 +9,26 @@ const files = fileURLToPath(new URL('./files', import.meta.url).href);
 
 /** @type {import('.').default} */
 export default function (opts = {}) {
-	const { out = 'build', precompress, envPrefix = '', polyfill = true } = opts;
+	const {
+		out = 'build',
+		precompress = false,
+		envPrefix = '',
+		polyfill = true,
+		copyDevNodeModules = false,
+		cleanPackageJson = true,
+		copyNpmrc = true
+	} = opts;
+
+	const buildername = 'amplify-adapter';
 
 	return {
-		name: 'amplify-adapter',
+		name: buildername,
 
 		async adapt(builder) {
-			const tmp = builder.getBuildDirectory('amplify-adapter');
+			const tmp = builder.getBuildDirectory(buildername);
 			const computePath = `${out}/compute/default`;
+
+			console.log(tmp);
 
 			builder.rimraf(out);
 			builder.rimraf(tmp);
@@ -72,6 +84,15 @@ export default function (opts = {}) {
 				dir: `${computePath}/server`,
 				format: 'esm',
 				sourcemap: true,
+				sourcemapPathTransform: (relativePath) => {
+					let regex = new RegExp(`((..\/)+.svelte-kit\/${buildername}\/)`, 'g');
+					relativePath = relativePath.replace(regex, './');
+
+					regex = new RegExp(`((..\/)+node_modules/)`, 'g');
+					relativePath = relativePath.replace(regex, '../node_modules');
+
+					return relativePath;
+				},
 				chunkFileNames: 'chunks/[name]-[hash].js'
 			});
 
@@ -126,9 +147,21 @@ export default function (opts = {}) {
 				writeFileSync(`${computePath}/shims.js`, '', 'utf-8');
 			}
 
-			builder.copy('node_modules', `${computePath}/node_modules`, {});
+			if (copyDevNodeModules) {
+				builder.copy('node_modules', `${computePath}/node_modules`, {});
+			}
+			if (copyNpmrc) {
+				builder.copy('.npmrc', `${computePath}/.npmrc`, {});
+			}
 
-			builder.copy('package.json', `${computePath}/package.json`, {});
+			if (cleanPackageJson) {
+				const packageJson = JSON.parse(readFileSync('package.json', 'utf8'));
+				delete packageJson.devDependencies;
+				delete packageJson.scripts;
+				writeFileSync(`${computePath}/package.json`, JSON.stringify(packageJson, null, 2), 'utf-8');
+			} else {
+				builder.copy('package.json', `${computePath}/package.json`, {});
+			}
 		}
 	};
 }
