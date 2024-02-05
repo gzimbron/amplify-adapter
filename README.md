@@ -10,7 +10,7 @@ Limitations:
 
 ## Video tutorial
 
-[![SvelteKit + Amplify CI/CD](./readme_assets/video.jpg)](https://youtu.be/wzA5w3Y67iI)
+[![SvelteKit + Amplify CI/CD](./readme_assets/video.jpg)](https://youtu.be/YGgJgq2LLpE)
 
 ## Usage
 
