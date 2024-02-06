@@ -9,7 +9,7 @@ const expected = new Set([
 	'ADDRESS_HEADER',
 	'PROTOCOL_HEADER',
 	'HOST_HEADER',
-	'BODY_SIZE_LIMIT'
+	'BODY_SIZE_LIMIT',
 ]);
 
 if (ENV_PREFIX) {

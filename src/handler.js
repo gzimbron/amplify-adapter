@@ -40,7 +40,7 @@ function serve(path, client = false) {
 					if (pathname.startsWith(`/${manifest.appPath}/immutable/`) && res.statusCode === 200) {
 						res.setHeader('cache-control', 'public,max-age=31536000,immutable');
 					}
-				})
+				}),
 		})
 	);
 }
@@ -83,7 +83,7 @@ const ssr = async (req, res) => {
 		request = await getRequest({
 			base: origin || get_origin(req.headers),
 			request: req,
-			bodySizeLimit: body_size_limit
+			bodySizeLimit: body_size_limit,
 		});
 	} catch (err) {
 		res.statusCode = err.status || 400;
@@ -135,7 +135,7 @@ const ssr = async (req, res) => {
 					// @ts-expect-error
 					req.info?.remoteAddress
 				);
-			}
+			},
 		})
 	);
 };
@@ -175,6 +175,6 @@ export const handler = sequence(
 		serve(path.join(dir, 'client'), true),
 		serve(path.join(dir, 'static')),
 		serve_prerendered(),
-		ssr
+		ssr,
 	].filter(Boolean)
 );

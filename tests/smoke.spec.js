@@ -37,9 +37,9 @@ test('responses with the rendered status code', async () => {
 			return {
 				headers: 'wow',
 				status: 203,
-				body: 'ok'
+				body: 'ok',
 			};
-		}
+		},
 	});
 	const res = await fetch(`http://localhost:${PORT}/wow`);
 	assert.equal(res.status, 203);
@@ -51,9 +51,9 @@ test('passes through umlaut as encoded path', async () => {
 		render: (incoming) => {
 			return {
 				status: 200,
-				body: incoming.path
+				body: incoming.path,
 			};
-		}
+		},
 	});
 	const res = await fetch(`http://localhost:${PORT}/%C3%BCber-uns`);
 	assert.equal(await res.text(), '/%C3%BCber-uns');
