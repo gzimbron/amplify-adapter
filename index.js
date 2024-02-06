@@ -16,7 +16,7 @@ export default function (opts = {}) {
 		polyfill = true,
 		copyDevNodeModules = false,
 		cleanPackageJson = true,
-		copyNpmrc = true
+		copyNpmrc = true,
 	} = opts;
 
 	const buildername = 'amplify-adapter';
@@ -42,7 +42,7 @@ export default function (opts = {}) {
 				builder.log.minor('Compressing assets');
 				await Promise.all([
 					builder.compress(`${out}/static`),
-					builder.compress(`${computePath}/prerendered`)
+					builder.compress(`${computePath}/prerendered`),
 				]);
 			}
 
@@ -64,20 +64,20 @@ export default function (opts = {}) {
 			const bundle = await rollup({
 				input: {
 					index: `${tmp}/index.js`,
-					manifest: `${tmp}/manifest.js`
+					manifest: `${tmp}/manifest.js`,
 				},
 				external: [
 					// dependencies could have deep exports, so we need a regex
-					...Object.keys(pkg.dependencies || {}).map((d) => new RegExp(`^${d}(\\/.*)?$`))
+					...Object.keys(pkg.dependencies || {}).map((d) => new RegExp(`^${d}(\\/.*)?$`)),
 				],
 				plugins: [
 					nodeResolve({
 						preferBuiltins: true,
-						exportConditions: ['node']
+						exportConditions: ['node'],
 					}),
 					commonjs({ strictRequires: true }),
-					json()
-				]
+					json(),
+				],
 			});
 
 			await bundle.write({
@@ -93,7 +93,7 @@ export default function (opts = {}) {
 
 					return relativePath;
 				},
-				chunkFileNames: 'chunks/[name]-[hash].js'
+				chunkFileNames: 'chunks/[name]-[hash].js',
 			});
 
 			builder.copy(files, computePath, {
@@ -103,8 +103,8 @@ export default function (opts = {}) {
 					MANIFEST: './server/manifest.js',
 					SERVER: './server/index.js',
 					SHIMS: './shims.js',
-					ENV_PREFIX: JSON.stringify(envPrefix)
-				}
+					ENV_PREFIX: JSON.stringify(envPrefix),
+				},
 			});
 
 			writeFileSync(
@@ -117,28 +117,28 @@ export default function (opts = {}) {
 							path: '/*.*',
 							target: {
 								kind: 'Static',
-								cacheControl: 'public, max-age=2'
+								cacheControl: 'public, max-age=2',
 							},
 							fallback: {
 								kind: 'Compute',
-								src: 'default'
-							}
+								src: 'default',
+							},
 						},
 						{
 							path: '/*',
 							target: {
 								kind: 'Compute',
-								src: 'default'
-							}
-						}
+								src: 'default',
+							},
+						},
 					],
 					computeResources: [
 						{
 							name: 'default',
 							runtime: 'nodejs18.x',
-							entrypoint: 'index.js'
-						}
-					]
+							entrypoint: 'index.js',
+						},
+					],
 				})
 			);
 
@@ -162,6 +162,6 @@ export default function (opts = {}) {
 			} else {
 				builder.copy('package.json', `${computePath}/package.json`, {});
 			}
-		}
+		},
 	};
 }
