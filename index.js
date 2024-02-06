@@ -28,8 +28,6 @@ export default function (opts = {}) {
 			const tmp = builder.getBuildDirectory(buildername);
 			const computePath = `${out}/compute/default`;
 
-			console.log(tmp);
-
 			builder.rimraf(out);
 			builder.rimraf(tmp);
 			builder.mkdirp(tmp);
