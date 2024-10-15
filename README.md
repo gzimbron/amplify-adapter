@@ -36,8 +36,8 @@ import adapter from 'amplify-adapter';
 - Go to `App settings > Build settings > App build specification` and set Artifact folder to `build` (default adapter output folder) and add this lines to `frontend -> build` phase:
 
 ```yaml
-- cd build/compute/default/
-- npm i --production
+- 'cd build/compute/default/'
+- 'npm i --production'
 ```
 
 ![App build specification](./readme_assets/buildsettings_1.jpg)
