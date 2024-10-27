@@ -109,7 +109,7 @@ export default function (opts = {}) {
 				`${out}/deploy-manifest.json`,
 				JSON.stringify({
 					version: 1,
-					framework: { name: 'SvelteKit', version: '0.0.3' },
+					framework: { name: 'SvelteKit', version: '2.0.0' },
 					routes: [
 						{
 							path: '/*.*',
@@ -133,7 +133,7 @@ export default function (opts = {}) {
 					computeResources: [
 						{
 							name: 'default',
-							runtime: 'nodejs18.x',
+							runtime: 'nodejs20.x',
 							entrypoint: 'index.js',
 						},
 					],
