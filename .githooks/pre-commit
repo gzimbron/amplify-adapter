@@ -2,6 +2,6 @@
 
 set -e
 
-pnpm install --frozen-lockfile
+pnpm install
 pnpm format
 pnpm lint
