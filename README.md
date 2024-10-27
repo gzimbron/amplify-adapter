@@ -77,8 +77,6 @@ frontend:
 
 - Click `Next` to `Review` your app configuration and click `Save and Deploy`.
 
-![Review](readme_assets/6-review.jpg)
-
 ## License
 
 [MIT](LICENSE)
