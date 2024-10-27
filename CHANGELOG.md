@@ -1,5 +1,11 @@
 # amplify-adapter
 
+## 0.1.3
+
+### Patch Changes
+
+- 022c1ed: Update documentation
+
 ## 0.1.2
 
 ### Patch Changes
