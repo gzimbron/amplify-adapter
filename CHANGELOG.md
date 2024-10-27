@@ -1,5 +1,11 @@
 # amplify-adapter
 
+## 0.2.0
+
+### Minor Changes
+
+- 6e38d97: Upgrade node runtime to 20.x
+
 ## 0.1.3
 
 ### Patch Changes
