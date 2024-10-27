@@ -12,9 +12,13 @@ Limitations:
 
 [![SvelteKit + Amplify CI/CD](./readme_assets/video.jpg)](https://youtu.be/YGgJgq2LLpE)
 
-## Usage
+### Official documentation on AWS Amplify
 
-- Install with npm or yarn:
+[https://docs.aws.amazon.com/amplify/latest/userguide/get-started-sveltekit.html](https://docs.aws.amazon.com/amplify/latest/userguide/get-started-sveltekit.html)
+
+## Sveltekit amplify adapter installation
+
+- Install with npm, pnpm or yarn:
 
 ```bash
 npm install --save-dev amplify-adapter
@@ -27,26 +31,53 @@ npm install --save-dev amplify-adapter
 import adapter from 'amplify-adapter';
 ```
 
-## Amplify CI/CD
+## Amplify Hosting Integration (CI/CD)
 
-- Connect a branch to your Amplify App Hosting for CI/CD (setup default values).
+- Create a new app in Amplify Console, choose your git provider and click `Next`.
 
-![Connect branch](./readme_assets/connect_branch.jpg)
+![Create new app](readme_assets/1-create-new-app.jpg)
 
-- Go to `App settings > Build settings > App build specification` and set Artifact folder to `build` (default adapter output folder) and add this lines to `frontend -> build` phase:
+- Select your repository and branch, and click `Next`.
+
+![Select repository](readme_assets/2-select-repository-and-branch.jpg)
+
+- Click `Edit YML` button:
+
+![Edit Yml button](readme_assets/3-click-on-edit-yml.jpg)
+
+- Set Artifact base directory to `build` and add the following lines to `frontend -> build` phase:
 
 ```yaml
 - cd build/compute/default/
-- npm i --production
+- npm i --omit=dev
 ```
 
-![App build specification](./readme_assets/buildsettings_1.jpg)
+![Edit Yml](readme_assets/4-edit-yml-file.jpg)
 
-- At `App settings > Build settings > Build image settings` clic `Edit` Button, and change `Build image` to `Amazon Linux:2023`.
+```yml
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - 'npm i'
+    build:
+      commands:
+        - 'npm run build'
+        - 'cd build/compute/default/'
+        - 'npm i --omit=dev'
+  artifacts:
+    baseDirectory: build
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
+```
 
-![Build image settings](./readme_assets/buildsettings_2.jpg)
+- Click `Next` to `Review` your app configuration and click `Save and Deploy`.
 
-![Build image settings](./readme_assets/buildsettings_3.jpg)
+![Review](readme_assets/6-review.jpg)
 
 ## License
 
