@@ -1,6 +1,6 @@
 {
 	"name": "amplify-adapter",
-	"version": "1.0.0-next.0",
+	"version": "1.0.0-next.1",
 	"description": "Adapter for SvelteKit v1/v2 + Amplify SSR CI/CD",
 	"license": "MIT",
 	"type": "module",
@@ -31,7 +31,8 @@
 		"format": "prettier --write .",
 		"release": "changeset publish",
 		"changeset": "changeset",
-		"release:next": "changeset version --tag next"
+		"version:next": "changeset version --tag next",
+		"release:next": "changeset publish --tag next"
 	},
 	"dependencies": {
 		"rolldown": "^1.0.0-beta.1"
