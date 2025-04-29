@@ -30,7 +30,8 @@
 		"lint": "prettier --check .",
 		"format": "prettier --write .",
 		"release": "changeset publish",
-		"changeset": "changeset"
+		"changeset": "changeset",
+		"release:next": "changeset version --tag next"
 	},
 	"dependencies": {
 		"rolldown": "^1.0.0-beta.1"
