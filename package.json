@@ -32,7 +32,7 @@
 		"release": "changeset publish",
 		"changeset": "changeset",
 		"version:next": "changeset version --tag next",
-		"release:next": "changeset publish --tag next"
+		"release:next": "pnpm publish --tag next"
 	},
 	"dependencies": {
 		"rolldown": "^1.0.0-beta.1"
