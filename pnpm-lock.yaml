@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      rolldown:
+        specifier: ^1.0.0-beta.1
+        version: 1.0.0-beta.1(@babel/runtime@7.23.9)
     devDependencies:
       '@changesets/cli':
         specifier: ^2.27.1
@@ -32,9 +36,6 @@ importers:
       rimraf:
         specifier: ^5.0.0
         version: 5.0.5
-      rolldown:
-        specifier: ^1.0.0-beta.1
-        version: 1.0.0-beta.1(@babel/runtime@7.23.9)
       sirv:
         specifier: ^2.0.3
         version: 2.0.4
