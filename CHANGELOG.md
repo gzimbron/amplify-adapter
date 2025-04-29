@@ -1,5 +1,15 @@
 # amplify-adapter
 
+## 1.0.0-next.0
+
+### Major Changes
+
+- 9c89e0e: Using migrating to rolldown
+
+### Patch Changes
+
+- 67d3709: switch to rolldown
+
 ## 0.2.0
 
 ### Minor Changes

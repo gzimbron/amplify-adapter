@@ -1,0 +1,11 @@
+{
+  "mode": "pre",
+  "tag": "next",
+  "initialVersions": {
+    "amplify-adapter": "0.2.1"
+  },
+  "changesets": [
+    "eighty-grapes-raise",
+    "friendly-chicken-doubt"
+  ]
+}
