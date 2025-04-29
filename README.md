@@ -48,8 +48,8 @@ import adapter from 'amplify-adapter';
 - Set Artifact base directory to `build` and add the following lines to `frontend -> build` phase:
 
 ```yaml
-- cd build/compute/default/
-- npm i --omit=dev
+~~- cd build/compute/default/~~
+~~npm i --omit=dev~~
 ```
 
 ![Edit Yml](readme_assets/4-edit-yml-file.jpg)
@@ -64,8 +64,8 @@ frontend:
     build:
       commands:
         - 'npm run build'
-        - 'cd build/compute/default/'
-        - 'npm i --omit=dev'
+        # - 'cd build/compute/default/'
+        # - 'npm i --omit=dev'
   artifacts:
     baseDirectory: build
     files:
