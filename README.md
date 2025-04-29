@@ -10,7 +10,7 @@ Limitations:
 
 ## Video tutorial
 
-[![SvelteKit + Amplify CI/CD](./readme_assets/video.jpg)](https://youtu.be/YGgJgq2LLpE)
+[![SvelteKit + Amplify CI/CD](./readme_assets/Snapshot.JPG)](https://youtu.be/T5QQCIidG7M)
 
 ### Official documentation on AWS Amplify
 
@@ -45,14 +45,9 @@ import adapter from 'amplify-adapter';
 
 ![Edit Yml button](readme_assets/3-click-on-edit-yml.jpg)
 
+- Add preBuild command: `- 'corepack enable'`
+
 - Set Artifact base directory to `build` and add the following lines to `frontend -> build` phase:
-
-```yaml
-- cd build/compute/default/
-- npm i --omit=dev
-```
-
-![Edit Yml](readme_assets/4-edit-yml-file.jpg)
 
 ```yml
 version: 1
@@ -60,12 +55,11 @@ frontend:
   phases:
     preBuild:
       commands:
-        - 'npm i'
+        - 'corepack enable'
+        - 'pnpm install --frozen-lockfile'
     build:
       commands:
-        - 'npm run build'
-        - 'cd build/compute/default/'
-        - 'npm i --omit=dev'
+        - 'pnpm run build'
   artifacts:
     baseDirectory: build
     files:
@@ -74,6 +68,8 @@ frontend:
     paths:
       - node_modules/**/*
 ```
+
+![Edit YML File](readme_assets/4-edit-yml-file.jpg)
 
 - Click `Next` to `Review` your app configuration and click `Save and Deploy`.
 

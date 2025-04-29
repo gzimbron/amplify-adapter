@@ -1,5 +1,33 @@
 # amplify-adapter
 
+## 1.0.0-next.2
+
+### Patch Changes
+
+- Added cacheMaxAge parameter
+
+## 1.0.0-next.2
+
+### Patch Changes
+
+- 0d5fe19: version:next + release:next
+
+## 1.0.0-next.1
+
+### Patch Changes
+
+- scripts updates
+
+## 1.0.0-next.0
+
+### Major Changes
+
+- 9c89e0e: Using migrating to rolldown
+
+### Patch Changes
+
+- 67d3709: switch to rolldown
+
 ## 0.2.0
 
 ### Minor Changes

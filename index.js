@@ -1,12 +1,8 @@
-import commonjs from '@rollup/plugin-commonjs';
-import json from '@rollup/plugin-json';
-import { nodeResolve } from '@rollup/plugin-node-resolve';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { rollup } from 'rollup';
+import { rolldown } from 'rolldown';
 
 const files = fileURLToPath(new URL('./files', import.meta.url).href);
-
 /** @type {import('.').default} */
 export default function (opts = {}) {
 	const {
@@ -17,6 +13,7 @@ export default function (opts = {}) {
 		copyDevNodeModules = false,
 		cleanPackageJson = true,
 		copyNpmrc = true,
+		staticCacheMaxAge = 3600,
 	} = opts;
 
 	const buildername = 'amplify-adapter';
@@ -59,23 +56,14 @@ export default function (opts = {}) {
 			// we bundle the Vite output so that deployments only need
 			// their production dependencies. Anything in devDependencies
 			// will get included in the bundled code
-			const bundle = await rollup({
+			const bundle = await rolldown({
 				input: {
 					index: `${tmp}/index.js`,
 					manifest: `${tmp}/manifest.js`,
 				},
-				external: [
-					// dependencies could have deep exports, so we need a regex
-					...Object.keys(pkg.dependencies || {}).map((d) => new RegExp(`^${d}(\\/.*)?$`)),
-				],
-				plugins: [
-					nodeResolve({
-						preferBuiltins: true,
-						exportConditions: ['node'],
-					}),
-					commonjs({ strictRequires: true }),
-					json(),
-				],
+				platform: 'node',
+				treeshake: true,
+				shimMissingExports: true,
 			});
 
 			await bundle.write({
@@ -94,28 +82,33 @@ export default function (opts = {}) {
 				chunkFileNames: 'chunks/[name]-[hash].js',
 			});
 
-			builder.copy(files, computePath, {
-				replace: {
-					ENV: './env.js',
-					HANDLER: './handler.js',
-					MANIFEST: './server/manifest.js',
-					SERVER: './server/index.js',
-					SHIMS: './shims.js',
-					ENV_PREFIX: JSON.stringify(envPrefix),
-				},
-			});
+			const thefiles = await readdirSync(files);
+			for (const file of thefiles) {
+				const thefilepath = files + '/' + file;
+				builder.copy(thefilepath, computePath + '/' + file, {
+					replace: {
+						ENV: './env.js',
+						HANDLER: './handler.js',
+						MANIFEST: './server/manifest.js',
+						SERVER: './server/index.js',
+						SHIMS: './shims.js',
+						ENV_PREFIX: JSON.stringify(envPrefix),
+					},
+				});
+			}
+			console.log('copied them all ');
 
 			writeFileSync(
 				`${out}/deploy-manifest.json`,
 				JSON.stringify({
 					version: 1,
-					framework: { name: 'SvelteKit', version: '2.0.0' },
+					framework: { name: 'SvelteKit', version: '2.11.1' },
 					routes: [
 						{
 							path: '/*.*',
 							target: {
 								kind: 'Static',
-								cacheControl: 'public, max-age=2',
+								cacheControl: `public, max-age=${staticCacheMaxAge}`,
 							},
 							fallback: {
 								kind: 'Compute',
@@ -155,6 +148,7 @@ export default function (opts = {}) {
 			if (cleanPackageJson) {
 				const packageJson = JSON.parse(readFileSync('package.json', 'utf8'));
 				delete packageJson.devDependencies;
+				delete packageJson.dependencies;
 				delete packageJson.scripts;
 				writeFileSync(`${computePath}/package.json`, JSON.stringify(packageJson, null, 2), 'utf-8');
 			} else {

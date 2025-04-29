@@ -1,6 +1,6 @@
 {
 	"name": "amplify-adapter",
-	"version": "0.2.0",
+	"version": "1.0.0-next.2",
 	"description": "Adapter for SvelteKit v1/v2 + Amplify SSR CI/CD",
 	"license": "MIT",
 	"type": "module",
@@ -25,12 +25,17 @@
 		"index.d.ts"
 	],
 	"scripts": {
-		"dev": "rimraf files && rollup -cw",
-		"build": "rimraf files && rollup -c",
+		"dev": "rimraf files && rolldown -w -c",
+		"build": "rimraf files && rolldown -c",
 		"lint": "prettier --check .",
 		"format": "prettier --write .",
 		"release": "changeset publish",
-		"changeset": "changeset"
+		"changeset": "changeset",
+		"version:next": "changeset version --tag next",
+		"release:next": "pnpm publish --tag next"
+	},
+	"dependencies": {
+		"rolldown": "^1.0.0-beta.1"
 	},
 	"devDependencies": {
 		"@changesets/cli": "^2.27.1",
@@ -44,12 +49,6 @@
 		"sirv": "^2.0.3",
 		"typescript": "^4.9.4",
 		"vite": "^5.0.0"
-	},
-	"dependencies": {
-		"@rollup/plugin-commonjs": "^25.0.0",
-		"@rollup/plugin-json": "^6.0.0",
-		"@rollup/plugin-node-resolve": "^15.0.1",
-		"rollup": "^3.7.0"
 	},
 	"peerDependencies": {
 		"@sveltejs/kit": "^1.0.0 || ^2.0.0"
