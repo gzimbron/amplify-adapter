@@ -2,7 +2,7 @@ import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { rolldown } from 'rolldown';
 
-const files = fileURLToPath(new URL('./dist/files', import.meta.url).href);
+const files = fileURLToPath(new URL('./files', import.meta.url).href);
 /** @type {import('.').default} */
 export default function (opts = {}) {
 	const {
