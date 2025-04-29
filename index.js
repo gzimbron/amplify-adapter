@@ -13,6 +13,7 @@ export default function (opts = {}) {
 		copyDevNodeModules = false,
 		cleanPackageJson = true,
 		copyNpmrc = true,
+		staticCacheMaxAge = 3600,
 	} = opts;
 
 	const buildername = 'amplify-adapter';
@@ -107,7 +108,7 @@ export default function (opts = {}) {
 							path: '/*.*',
 							target: {
 								kind: 'Static',
-								cacheControl: 'public, max-age=3600',
+								cacheControl: `public, max-age=${staticCacheMaxAge}`,
 							},
 							fallback: {
 								kind: 'Compute',

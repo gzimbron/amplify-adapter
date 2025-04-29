@@ -36,6 +36,12 @@ interface AdapterOptions {
 	 * If true, the .npmrc file is copied to the output directory
 	 */
 	copyNpmrc?: boolean;
+
+	/**
+	 * Default: 3600
+	 * The max-age value for the static cache
+	 */
+	staticCacheMaxAge?: number;
 }
 
 export default function plugin(options?: AdapterOptions): Adapter;
