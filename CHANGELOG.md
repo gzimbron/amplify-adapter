@@ -1,5 +1,17 @@
 # amplify-adapter
 
+## 1.0.0-next.2
+
+### Patch Changes
+
+- Added cacheMaxAge parameter
+
+## 1.0.0-next.2
+
+### Patch Changes
+
+- 0d5fe19: version:next + release:next
+
 ## 1.0.0-next.1
 
 ### Patch Changes
