@@ -12,6 +12,7 @@ export default function (opts = {}) {
 		polyfill = true,
 		copyDevNodeModules = false,
 		cleanPackageJson = true,
+		keepPackageDependencies = false,
 		copyNpmrc = true,
 		staticCacheMaxAge = 3600,
 	} = opts;
@@ -64,6 +65,9 @@ export default function (opts = {}) {
 				platform: 'node',
 				treeshake: true,
 				shimMissingExports: true,
+				external: keepPackageDependencies
+					? [...Object.keys(pkg.dependencies || {}).map((d) => new RegExp(`^${d}(\\/.*)?$`))]
+					: undefined,
 			});
 
 			await bundle.write({
@@ -148,7 +152,10 @@ export default function (opts = {}) {
 			if (cleanPackageJson) {
 				const packageJson = JSON.parse(readFileSync('package.json', 'utf8'));
 				delete packageJson.devDependencies;
-				delete packageJson.dependencies;
+
+				if (!keepPackageDependencies) {
+					delete packageJson.dependencies;
+				}
 				delete packageJson.scripts;
 				writeFileSync(`${computePath}/package.json`, JSON.stringify(packageJson, null, 2), 'utf-8');
 			} else {

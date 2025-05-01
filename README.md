@@ -47,7 +47,14 @@ import adapter from 'amplify-adapter';
 
 - Add preBuild command: `- 'corepack enable'`
 
-- Set Artifact base directory to `build` and add the following lines to `frontend -> build` phase:
+- Set Artifact base directory to `build` and add the following lines to `frontend -> build` phase
+
+- If `keepPackageDependencies` set to `true` add following lines to `frontend -> build` phase, after `pnpm run build` command:
+
+```yml
+- 'cd build/compute/default/'
+- 'pnpm i --production'
+```
 
 ```yml
 version: 1
@@ -60,6 +67,8 @@ frontend:
     build:
       commands:
         - 'pnpm run build'
+        #- 'cd build/compute/default/'
+        #- 'pnpm i --production'
   artifacts:
     baseDirectory: build
     files:
