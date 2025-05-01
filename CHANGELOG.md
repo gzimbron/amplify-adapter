@@ -1,5 +1,11 @@
 # amplify-adapter
 
+## 1.1.0
+
+### Minor Changes
+
+- 4e768da: - Add keepPackageDependencies adapter option, for v0.2.0 compatibility
+
 ## 1.0.0
 
 ### Major Changes
