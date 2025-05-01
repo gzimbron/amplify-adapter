@@ -42,6 +42,12 @@ interface AdapterOptions {
 	 * The max-age value for the static cache
 	 */
 	staticCacheMaxAge?: number;
+
+	/**
+	 * Default: false
+	 * If true, the dependencies are kept in the output package.json
+	 */
+	keepPackageDependencies?: boolean;
 }
 
 export default function plugin(options?: AdapterOptions): Adapter;
