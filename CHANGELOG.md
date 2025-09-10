@@ -1,5 +1,11 @@
 # amplify-adapter
 
+## 1.2.1
+
+### Patch Changes
+
+- ba3b972: latest version patch
+
 ## 1.2.0
 
 ### Minor Changes
