@@ -1,5 +1,11 @@
 # amplify-adapter
 
+## 1.2.0
+
+### Minor Changes
+
+- Add support for SvelteKit instrumentation.
+
 ## 1.1.0
 
 ### Minor Changes

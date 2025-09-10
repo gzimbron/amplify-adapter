@@ -21,7 +21,10 @@ export default function (opts = {}) {
 
 	return {
 		name: buildername,
-
+		supports: {
+			read: () => true,
+			instrumentation: () => true,
+		},
 		async adapt(builder) {
 			const tmp = builder.getBuildDirectory(buildername);
 			const computePath = `${out}/compute/default`;
@@ -54,14 +57,21 @@ export default function (opts = {}) {
 
 			const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
 
+			/** @type {Record<string, string>} */
+			const input = {
+				index: `${tmp}/index.js`,
+				manifest: `${tmp}/manifest.js`,
+			};
+
+			if (builder.hasServerInstrumentationFile?.()) {
+				input['instrumentation.server'] = `${tmp}/instrumentation.server.js`;
+			}
+
 			// we bundle the Vite output so that deployments only need
 			// their production dependencies. Anything in devDependencies
 			// will get included in the bundled code
 			const bundle = await rolldown({
-				input: {
-					index: `${tmp}/index.js`,
-					manifest: `${tmp}/manifest.js`,
-				},
+				input,
 				platform: 'node',
 				treeshake: true,
 				shimMissingExports: true,
@@ -100,6 +110,17 @@ export default function (opts = {}) {
 					},
 				});
 			}
+
+			if (builder.hasServerInstrumentationFile?.()) {
+				builder.instrument?.({
+					entrypoint: `${computePath}/server/index.js`,
+					instrumentation: `${computePath}/server/instrumentation.server.js`,
+					module: {
+						exports: ['path', 'host', 'port', 'server'],
+					},
+				});
+			}
+
 			console.log('copied them all ');
 
 			writeFileSync(
