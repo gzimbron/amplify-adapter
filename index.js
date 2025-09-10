@@ -113,8 +113,8 @@ export default function (opts = {}) {
 
 			if (builder.hasServerInstrumentationFile?.()) {
 				builder.instrument?.({
-					entrypoint: `${out}/index.js`,
-					instrumentation: `${out}/server/instrumentation.server.js`,
+					entrypoint: `${computePath}/server/index.js`,
+					instrumentation: `${computePath}/server/instrumentation.server.js`,
 					module: {
 						exports: ['path', 'host', 'port', 'server'],
 					},
