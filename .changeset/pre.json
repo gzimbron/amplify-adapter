@@ -4,5 +4,7 @@
   "initialVersions": {
     "amplify-adapter": "1.2.1"
   },
-  "changesets": []
+  "changesets": [
+    "huge-areas-divide"
+  ]
 }
