@@ -38,6 +38,7 @@ Puedes agregar este comando en tu documentación interna o como paso manual cada
 ---
 
 **Resumen:**
+
 - Activa el modo pre-release con `pnpm changeset pre enter next` en la rama `next`.
 - Finaliza el ciclo con `pnpm changeset pre exit` cuando quieras publicar estable en `main`.
 
