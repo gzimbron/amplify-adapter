@@ -1,5 +1,11 @@
 # amplify-adapter
 
+## 1.2.2
+
+### Patch Changes
+
+- 373a824: Fix: Adjusting entrypoint path to resolve Amplify runtime error
+
 ## 1.2.1
 
 ### Patch Changes
