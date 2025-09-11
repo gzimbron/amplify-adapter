@@ -1,0 +1,10 @@
+{
+  "mode": "pre",
+  "tag": "next",
+  "initialVersions": {
+    "amplify-adapter": "1.2.1"
+  },
+  "changesets": [
+    "huge-areas-divide"
+  ]
+}
