@@ -151,7 +151,7 @@ export default function (opts = {}) {
 					computeResources: [
 						{
 							name: 'default',
-							runtime: 'nodejs20.x',
+							runtime: 'nodejs22.x',
 							entrypoint: 'index.js',
 						},
 					],
