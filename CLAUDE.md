@@ -20,10 +20,12 @@ pnpm release          # Publish to npm (main branch only)
 ## Architecture
 
 ### Adapter Entry Point
+
 - `index.js` - Main SvelteKit adapter export implementing the `adapt()` method
 - `index.d.ts` - TypeScript definitions for adapter options
 
 ### Server Runtime (src/)
+
 The `src/` directory contains runtime code bundled into `files/` for deployment:
 
 - `src/index.js` - Server entry point using Polka.js
@@ -32,7 +34,9 @@ The `src/` directory contains runtime code bundled into `files/` for deployment:
 - `src/shims.js` - Node.js polyfills for SvelteKit compatibility
 
 ### Build Output Structure
+
 The adapter generates this structure in the `build/` directory:
+
 ```
 build/
 ├── deploy-manifest.json     # Amplify deployment configuration
@@ -45,6 +49,7 @@ build/
 ```
 
 ### Bundling
+
 - Uses Rolldown (`rolldown.config.js`) to create 4 separate bundles from `src/`
 - Template placeholders (ENV, HANDLER, MANIFEST, SERVER, SHIMS) are replaced during build
 - Inline sourcemaps with path transformation
@@ -52,23 +57,25 @@ build/
 ## Release Workflow
 
 Uses Changesets for semantic versioning:
+
 - **main branch**: Stable releases via automated PR
 - **next branch**: Pre-releases (e.g., 1.2.3-next.0)
 
 To contribute changes:
+
 1. Make code changes
 2. Run `pnpm changeset` to document the change type (patch/minor/major)
 3. Commit and create PR
 
 ## Key Adapter Options
 
-| Option | Default | Purpose |
-|--------|---------|---------|
-| `out` | 'build' | Output directory |
-| `precompress` | false | Enable gzip/brotli compression |
-| `envPrefix` | '' | Prefix for environment variables |
-| `keepPackageDependencies` | false | Mark dependencies as external |
-| `copyDevNodeModules` | false | Include all node_modules in output |
+| Option                    | Default | Purpose                            |
+| ------------------------- | ------- | ---------------------------------- |
+| `out`                     | 'build' | Output directory                   |
+| `precompress`             | false   | Enable gzip/brotli compression     |
+| `envPrefix`               | ''      | Prefix for environment variables   |
+| `keepPackageDependencies` | false   | Mark dependencies as external      |
+| `copyDevNodeModules`      | false   | Include all node_modules in output |
 
 ## Constraints
 
