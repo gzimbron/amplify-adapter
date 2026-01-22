@@ -2,3 +2,5 @@ node_modules
 files/
 .svelte-kit/
 .DS_Store
+
+.devbox/
