@@ -2,7 +2,7 @@ import 'SHIMS';
 import fs from 'node:fs';
 import path from 'node:path';
 import { createBrotliCompress, createGzip, constants } from 'node:zlib';
-import { pipeline } from 'node:stream';
+import { Readable } from 'node:stream';
 import sirv from 'sirv';
 import { fileURLToPath } from 'node:url';
 import { parse as polka_url_parser } from '@polka/url';
@@ -22,16 +22,50 @@ const COMPRESSIBLE_CONTENT_TYPES =
 	/^(?:text\/|application\/(?:json|javascript|xml|x-www-form-urlencoded)|[a-z]+\/[a-z0-9.-]*\+(?:json|xml))/i;
 
 /**
- * Negotiates the best compression encoding based on Accept-Encoding header
+ * Negotiates the best compression encoding based on Accept-Encoding header.
+ * Parses q-values to respect client preferences. When q-values are equal,
+ * prefers brotli for better compression.
  * @param {string | undefined} acceptEncoding
  * @returns {'br' | 'gzip' | null}
  */
 function negotiate_encoding(acceptEncoding) {
 	if (!acceptEncoding) return null;
 
-	// Prefer brotli over gzip for better compression
-	if (acceptEncoding.includes('br')) return 'br';
-	if (acceptEncoding.includes('gzip')) return 'gzip';
+	let br_q = 0;
+	let gzip_q = 0;
+
+	for (const part of acceptEncoding.split(',')) {
+		const [token, ...params] = part.split(';');
+		const encoding = token.trim().toLowerCase();
+
+		if (encoding !== 'br' && encoding !== 'gzip') continue;
+
+		// Default q-value is 1 if not specified
+		let q = 1;
+		for (const param of params) {
+			const [key, value] = param.split('=');
+			if (key?.trim().toLowerCase() === 'q' && value) {
+				const parsed = parseFloat(value.trim());
+				if (!Number.isNaN(parsed)) {
+					q = parsed;
+				}
+				break;
+			}
+		}
+
+		if (encoding === 'br' && q > br_q) {
+			br_q = q;
+		} else if (encoding === 'gzip' && q > gzip_q) {
+			gzip_q = q;
+		}
+	}
+
+	// q=0 means not acceptable
+	if (br_q <= 0 && gzip_q <= 0) return null;
+
+	// Prefer brotli when equally acceptable
+	if (br_q >= gzip_q && br_q > 0) return 'br';
+	if (gzip_q > 0) return 'gzip';
 	return null;
 }
 
@@ -193,43 +227,44 @@ const ssr = async (req, res) => {
 		!response.headers.get('content-encoding') &&
 		response.body;
 
-	if (shouldCompress && response.body) {
+	if (shouldCompress) {
 		// Clone headers and modify for compression
 		const headers = new Headers(response.headers);
 		headers.set('content-encoding', encoding);
 		headers.delete('content-length'); // Length changes after compression
-		headers.append('vary', 'Accept-Encoding');
+
+		// Merge Vary header properly to avoid duplicates
+		const existingVary = headers.get('vary');
+		if (existingVary) {
+			const values = existingVary.split(',').map((v) => v.trim().toLowerCase());
+			if (!values.includes('accept-encoding')) {
+				headers.set('vary', `${existingVary}, Accept-Encoding`);
+			}
+		} else {
+			headers.set('vary', 'Accept-Encoding');
+		}
 
 		// Write status and headers
 		res.writeHead(response.status, Object.fromEntries(headers));
 
-		// Stream and compress the response body
+		// Convert Web ReadableStream to Node.js Readable and pipe through compressor
 		const compressor = create_compressor(encoding);
-		const reader = response.body.getReader();
+		const nodeStream = Readable.fromWeb(
+			/** @type {import('stream/web').ReadableStream} */ (response.body)
+		);
 
-		compressor.on('data', (chunk) => res.write(chunk));
-		compressor.on('end', () => res.end());
+		// Use pipe for proper backpressure handling and error propagation
+		nodeStream.pipe(compressor).pipe(res);
+
+		// Handle errors on all streams
+		nodeStream.on('error', (err) => {
+			console.error('Stream error:', err);
+			if (!res.writableEnded) res.end();
+		});
 		compressor.on('error', (err) => {
 			console.error('Compression error:', err);
-			res.end();
+			if (!res.writableEnded) res.end();
 		});
-
-		// Pump data from response body to compressor
-		(async () => {
-			try {
-				while (true) {
-					const { done, value } = await reader.read();
-					if (done) {
-						compressor.end();
-						break;
-					}
-					compressor.write(value);
-				}
-			} catch (err) {
-				console.error('Stream error:', err);
-				compressor.end();
-			}
-		})();
 	} else {
 		// No compression, use standard setResponse
 		setResponse(res, response);

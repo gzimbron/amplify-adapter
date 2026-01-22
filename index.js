@@ -83,7 +83,7 @@ export default function (opts = {}) {
 			await bundle.write({
 				dir: `${computePath}/server`,
 				format: 'esm',
-				sourcemap: true,
+				sourcemap: false,
 				sourcemapPathTransform: (relativePath) => {
 					let regex = new RegExp(`((..\/)+.svelte-kit\/${buildername}\/)`, 'g');
 					relativePath = relativePath.replace(regex, './');
