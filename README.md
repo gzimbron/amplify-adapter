@@ -1,4 +1,4 @@
-# amplify-adapter
+# @cloudbudgetmanager/amplify-adapter
 
 [Adapter](https://kit.svelte.dev/docs/adapters) for SvelteKit apps to Amplify Host CI/CD.
 
@@ -21,14 +21,14 @@ Limitations:
 - Install with npm, pnpm or yarn:
 
 ```bash
-npm install --save-dev amplify-adapter
+npm install --save-dev @cloudbudgetmanager/amplify-adapter
 ```
 
 - Add the adapter to your `svelte.config.js`:
 
 ```js
 // svelte.config.js
-import adapter from 'amplify-adapter';
+import adapter from '@cloudbudgetmanager/amplify-adapter';
 ```
 
 ## Amplify Hosting Integration (CI/CD)

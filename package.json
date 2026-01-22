@@ -1,12 +1,12 @@
 {
-	"name": "amplify-adapter",
+	"name": "@cloudbudgetmanager/amplify-adapter",
 	"version": "1.3.0",
 	"description": "Adapter for SvelteKit v1/v2 + Amplify SSR CI/CD",
 	"license": "MIT",
 	"type": "module",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/gzimbron/amplify-adapter.git"
+		"url": "git+https://github.com/cloudbudgetmanager/amplify-adapter.git"
 	},
 	"publishConfig": {
 		"access": "public"
