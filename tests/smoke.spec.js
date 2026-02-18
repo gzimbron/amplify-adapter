@@ -1,70 +1,77 @@
-import { assert, test } from 'vitest';
-import { create_kit_middleware } from '../src/handler.js';
-import fetch from 'node-fetch';
-import polka from 'polka';
+/**
+ * Smoke tests for the HTTP server entry point (src/index.js).
+ *
+ * These tests verify that the server starts correctly and handles
+ * basic configuration via environment variables.
+ *
+ * Note: src/index.js uses template placeholders (HANDLER, ENV) that are
+ * replaced at SvelteKit build time. Here we mock those modules so the
+ * server can be tested in isolation.
+ */
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
-const { PORT = 3000 } = process.env;
-const DEFAULT_SERVER_OPTS = { render: () => {} };
+vi.hoisted(() => {
+	vi.stubGlobal('ENV_PREFIX', '');
+});
 
-async function startServer(opts = DEFAULT_SERVER_OPTS) {
-	return new Promise((fulfil, reject) => {
-		const server = polka().use(create_kit_middleware(opts));
-		server.listen(PORT, (err) => {
-			if (err) {
-				reject(err);
-			}
-			fulfil(server);
-		});
+// Mock the HANDLER placeholder (resolved to ./handler.js at build time)
+vi.mock('HANDLER', () => ({
+	handler: (_req, res, next) => next(),
+}));
+
+// Mock the ENV placeholder (resolved to ./env.js at build time)
+vi.mock('ENV', () => ({
+	env: (name, fallback) => process.env[name] ?? fallback,
+}));
+
+describe('server startup', async () => {
+	let serverModule;
+
+	beforeEach(async () => {
+		vi.resetModules();
+		vi.unstubAllEnvs();
 	});
-}
 
-test('starts a server', async () => {
-	const server = await startServer();
-	assert.ok('server started');
-	server.server.close();
-});
-
-test('serves a 404', async () => {
-	const server = await startServer();
-	const res = await fetch(`http://localhost:${PORT}/nothing`);
-	assert.equal(res.status, 404);
-	server.server.close();
-});
-
-test('responses with the rendered status code', async () => {
-	const server = await startServer({
-		render: () => {
-			return {
-				headers: 'wow',
-				status: 203,
-				body: 'ok',
-			};
-		},
+	afterEach(() => {
+		if (serverModule?.server) {
+			serverModule.server.server?.close();
+		}
 	});
-	const res = await fetch(`http://localhost:${PORT}/wow`);
-	assert.equal(res.status, 203);
-	server.server.close();
-});
 
-test('passes through umlaut as encoded path', async () => {
-	const server = await startServer({
-		render: (incoming) => {
-			return {
-				status: 200,
-				body: incoming.path,
-			};
-		},
+	test('exports host, port and server', async () => {
+		serverModule = await import('../src/index.js');
+
+		expect(serverModule.host).toBeDefined();
+		expect(serverModule.port).toBeDefined();
+		expect(serverModule.server).toBeDefined();
 	});
-	const res = await fetch(`http://localhost:${PORT}/%C3%BCber-uns`);
-	assert.equal(await res.text(), '/%C3%BCber-uns');
-	server.server.close();
-});
 
-test('serve a 400 when we have a malformed url', async () => {
-	const server = await startServer();
-	const res = await fetch(`http://localhost:${PORT}//`);
-	assert.equal(res.status, 400);
-	server.server.close();
-});
+	test('defaults to host 0.0.0.0', async () => {
+		serverModule = await import('../src/index.js');
+		expect(serverModule.host).toBe('0.0.0.0');
+	});
 
-test.run();
+	test('defaults to port 3000', async () => {
+		serverModule = await import('../src/index.js');
+		expect(serverModule.port).toBe('3000');
+	});
+
+	test('uses PORT env var when set', async () => {
+		vi.stubEnv('PORT', '4000');
+		serverModule = await import('../src/index.js');
+		expect(serverModule.port).toBe('4000');
+	});
+
+	test('uses HOST env var when set', async () => {
+		vi.stubEnv('HOST', '127.0.0.1');
+		serverModule = await import('../src/index.js');
+		expect(serverModule.host).toBe('127.0.0.1');
+	});
+
+	test('uses SOCKET_PATH when set, setting port to false', async () => {
+		vi.stubEnv('SOCKET_PATH', '/tmp/app.sock');
+		serverModule = await import('../src/index.js');
+		expect(serverModule.path).toBe('/tmp/app.sock');
+		expect(serverModule.port).toBe(false);
+	});
+});
