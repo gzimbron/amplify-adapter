@@ -23,7 +23,7 @@ jobs:
         with:
           version: 8.6.3
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20.x'
           cache: pnpm
@@ -34,15 +34,25 @@ jobs:
       - name: Build Package
         run: pnpm build
 
-      - name: Version and Publish Next Release
+      - name: Configure npm authentication
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+
+      - name: Version Next Release
         run: |
           pnpm changeset version --tag next
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "ci: version and changelog for next release" || true
-          git push
-          pnpm publish --tag next
+          if git diff --cached --quiet; then
+            echo "No version changes to commit"
+          else
+            git commit -m "ci: version and changelog for next release"
+            git push
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to npm
+        run: pnpm publish --tag next --no-git-checks
+        env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
