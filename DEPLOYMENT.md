@@ -54,13 +54,11 @@ Usamos [Changesets](https://github.com/changesets/changesets) para manejar versi
    ```
 
 3. **Selecciona el tipo de cambio**:
-
    - Usa las flechas para navegar
    - Presiona espacio para seleccionar
    - Enter para confirmar
 
 4. **Escribe la descripción del cambio**:
-
    - Describe qué cambió y por qué
 
 5. **El changeset se crea automáticamente** en `.changeset/`

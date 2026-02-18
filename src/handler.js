@@ -1,6 +1,8 @@
 import 'SHIMS';
 import fs from 'node:fs';
 import path from 'node:path';
+import { createBrotliCompress, createGzip, constants } from 'node:zlib';
+import { Readable } from 'node:stream';
 import sirv from 'sirv';
 import { fileURLToPath } from 'node:url';
 import { parse as polka_url_parser } from '@polka/url';
@@ -10,6 +12,78 @@ import { manifest, prerendered } from 'MANIFEST';
 import { env } from 'ENV';
 
 /* global ENV_PREFIX */
+
+// Matches all text-based content types that benefit from compression:
+// - text/* (html, plain, xml, css, etc.)
+// - application/json, application/javascript, application/xml
+// - Any *+json or *+xml suffix (rss+xml, atom+xml, ld+json, etc.)
+// - image/svg+xml
+const COMPRESSIBLE_CONTENT_TYPES =
+	/^(?:text\/|application\/(?:json|javascript|xml|x-www-form-urlencoded)|[a-z]+\/[a-z0-9.-]*\+(?:json|xml))/i;
+
+/**
+ * Negotiates the best compression encoding based on Accept-Encoding header.
+ * Parses q-values to respect client preferences. When q-values are equal,
+ * prefers brotli for better compression.
+ * @param {string | undefined} acceptEncoding
+ * @returns {'br' | 'gzip' | null}
+ */
+function negotiate_encoding(acceptEncoding) {
+	if (!acceptEncoding) return null;
+
+	let br_q = 0;
+	let gzip_q = 0;
+
+	for (const part of acceptEncoding.split(',')) {
+		const [token, ...params] = part.split(';');
+		const encoding = token.trim().toLowerCase();
+
+		if (encoding !== 'br' && encoding !== 'gzip') continue;
+
+		// Default q-value is 1 if not specified
+		let q = 1;
+		for (const param of params) {
+			const [key, value] = param.split('=');
+			if (key?.trim().toLowerCase() === 'q' && value) {
+				const parsed = parseFloat(value.trim());
+				if (!Number.isNaN(parsed)) {
+					q = parsed;
+				}
+				break;
+			}
+		}
+
+		if (encoding === 'br' && q > br_q) {
+			br_q = q;
+		} else if (encoding === 'gzip' && q > gzip_q) {
+			gzip_q = q;
+		}
+	}
+
+	// q=0 means not acceptable
+	if (br_q <= 0 && gzip_q <= 0) return null;
+
+	// Prefer brotli when equally acceptable
+	if (br_q >= gzip_q && br_q > 0) return 'br';
+	if (gzip_q > 0) return 'gzip';
+	return null;
+}
+
+/**
+ * Creates a compression stream based on the encoding
+ * @param {'br' | 'gzip'} encoding
+ */
+function create_compressor(encoding) {
+	if (encoding === 'br') {
+		return createBrotliCompress({
+			params: {
+				[constants.BROTLI_PARAM_MODE]: constants.BROTLI_MODE_TEXT,
+				[constants.BROTLI_PARAM_QUALITY]: 4, // Balance between speed and compression
+			},
+		});
+	}
+	return createGzip({ level: 6 });
+}
 
 const server = new Server(manifest);
 await server.init({ env: process.env });
@@ -91,53 +165,110 @@ const ssr = async (req, res) => {
 		return;
 	}
 
-	setResponse(
-		res,
-		await server.respond(request, {
-			platform: { req },
-			getClientAddress: () => {
-				if (address_header) {
-					if (!(address_header in req.headers)) {
-						throw new Error(
-							`Address header was specified with ${
-								ENV_PREFIX + 'ADDRESS_HEADER'
-							}=${address_header} but is absent from request`
-						);
-					}
-
-					const value = /** @type {string} */ (req.headers[address_header]) || '';
-
-					if (address_header === 'x-forwarded-for') {
-						const addresses = value.split(',');
-
-						if (xff_depth < 1) {
-							throw new Error(`${ENV_PREFIX + 'XFF_DEPTH'} must be a positive integer`);
-						}
-
-						if (xff_depth > addresses.length) {
-							throw new Error(
-								`${ENV_PREFIX + 'XFF_DEPTH'} is ${xff_depth}, but only found ${
-									addresses.length
-								} addresses`
-							);
-						}
-						return addresses[addresses.length - xff_depth].trim();
-					}
-
-					return value;
+	const response = await server.respond(request, {
+		platform: { req },
+		getClientAddress: () => {
+			if (address_header) {
+				if (!(address_header in req.headers)) {
+					throw new Error(
+						`Address header was specified with ${
+							ENV_PREFIX + 'ADDRESS_HEADER'
+						}=${address_header} but is absent from request`
+					);
 				}
 
-				return (
-					req.connection?.remoteAddress ||
-					// @ts-expect-error
-					req.connection?.socket?.remoteAddress ||
-					req.socket?.remoteAddress ||
-					// @ts-expect-error
-					req.info?.remoteAddress
-				);
-			},
-		})
-	);
+				const value = /** @type {string} */ (req.headers[address_header]) || '';
+
+				if (address_header === 'x-forwarded-for') {
+					const addresses = value.split(',');
+
+					if (xff_depth < 1) {
+						throw new Error(`${ENV_PREFIX + 'XFF_DEPTH'} must be a positive integer`);
+					}
+
+					if (xff_depth > addresses.length) {
+						throw new Error(
+							`${ENV_PREFIX + 'XFF_DEPTH'} is ${xff_depth}, but only found ${
+								addresses.length
+							} addresses`
+						);
+					}
+					return addresses[addresses.length - xff_depth].trim();
+				}
+
+				return value;
+			}
+
+			return (
+				req.connection?.remoteAddress ||
+				// @ts-expect-error
+				req.connection?.socket?.remoteAddress ||
+				req.socket?.remoteAddress ||
+				// @ts-expect-error
+				req.info?.remoteAddress
+			);
+		},
+	});
+
+	// Check if compression should be applied
+	const contentType = response.headers.get('content-type');
+	const acceptEncoding = /** @type {string | undefined} */ (req.headers['accept-encoding']);
+	const encoding = negotiate_encoding(acceptEncoding);
+
+	// Only compress if:
+	// - Client accepts compression
+	// - Content is compressible (text-based)
+	// - Response isn't already encoded
+	// - Response has a body
+	const shouldCompress =
+		encoding &&
+		contentType &&
+		COMPRESSIBLE_CONTENT_TYPES.test(contentType) &&
+		!response.headers.get('content-encoding') &&
+		response.body;
+
+	if (shouldCompress) {
+		// Clone headers and modify for compression
+		const headers = new Headers(response.headers);
+		headers.set('content-encoding', encoding);
+		headers.delete('content-length'); // Length changes after compression
+
+		// Merge Vary header properly to avoid duplicates
+		const existingVary = headers.get('vary');
+		if (existingVary) {
+			const values = existingVary.split(',').map((v) => v.trim().toLowerCase());
+			if (!values.includes('accept-encoding')) {
+				headers.set('vary', `${existingVary}, Accept-Encoding`);
+			}
+		} else {
+			headers.set('vary', 'Accept-Encoding');
+		}
+
+		// Write status and headers
+		res.writeHead(response.status, Object.fromEntries(headers));
+
+		// Convert Web ReadableStream to Node.js Readable and pipe through compressor
+		const compressor = create_compressor(encoding);
+		const nodeStream = Readable.fromWeb(
+			/** @type {import('stream/web').ReadableStream} */ (response.body)
+		);
+
+		// Use pipe for proper backpressure handling and error propagation
+		nodeStream.pipe(compressor).pipe(res);
+
+		// Handle errors on all streams
+		nodeStream.on('error', (err) => {
+			console.error('Stream error:', err);
+			if (!res.writableEnded) res.end();
+		});
+		compressor.on('error', (err) => {
+			console.error('Compression error:', err);
+			if (!res.writableEnded) res.end();
+		});
+	} else {
+		// No compression, use standard setResponse
+		setResponse(res, response);
+	}
 };
 
 /** @param {import('polka').Middleware[]} handlers */
