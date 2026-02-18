@@ -41,6 +41,7 @@ When the SvelteKit user runs `vite build`, the adapter's `adapt()` function (in 
 5. **Writes `deploy-manifest.json`** → `build/deploy-manifest.json`
 
 The `deploy-manifest.json` tells Amplify:
+
 - Static files (`/*.*`) are served from the `Static` target with cache headers
 - All other routes (`/*`) are handled by the Node.js compute function (`nodejs20.x`)
 
@@ -48,17 +49,17 @@ The `deploy-manifest.json` tells Amplify:
 
 ## Adapter Options
 
-| Option | Default | Description |
-|---|---|---|
-| `out` | `'build'` | Output directory |
-| `precompress` | `false` | Pre-compress assets with gzip/brotli |
-| `envPrefix` | `''` | Prefix for environment variables |
-| `polyfill` | `true` | Include Node.js polyfills |
-| `copyDevNodeModules` | `false` | Copy all `node_modules` to build |
-| `cleanPackageJson` | `true` | Strip `devDependencies` and `scripts` from output `package.json` |
-| `keepPackageDependencies` | `false` | Keep `dependencies` in bundled output (external to the bundle) |
-| `copyNpmrc` | `true` | Copy `.npmrc` to compute directory |
-| `staticCacheMaxAge` | `3600` | `Cache-Control` max-age for static files (seconds) |
+| Option                    | Default   | Description                                                      |
+| ------------------------- | --------- | ---------------------------------------------------------------- |
+| `out`                     | `'build'` | Output directory                                                 |
+| `precompress`             | `false`   | Pre-compress assets with gzip/brotli                             |
+| `envPrefix`               | `''`      | Prefix for environment variables                                 |
+| `polyfill`                | `true`    | Include Node.js polyfills                                        |
+| `copyDevNodeModules`      | `false`   | Copy all `node_modules` to build                                 |
+| `cleanPackageJson`        | `true`    | Strip `devDependencies` and `scripts` from output `package.json` |
+| `keepPackageDependencies` | `false`   | Keep `dependencies` in bundled output (external to the bundle)   |
+| `copyNpmrc`               | `true`    | Copy `.npmrc` to compute directory                               |
+| `staticCacheMaxAge`       | `3600`    | `Cache-Control` max-age for static files (seconds)               |
 
 ---
 
@@ -66,17 +67,17 @@ The `deploy-manifest.json` tells Amplify:
 
 All variables support an optional prefix set via `envPrefix` adapter option.
 
-| Variable | Default | Description |
-|---|---|---|
-| `HOST` | `0.0.0.0` | Server host |
-| `PORT` | `3000` | Server port |
-| `SOCKET_PATH` | — | Unix socket path (overrides host/port) |
-| `ORIGIN` | — | App origin URL |
-| `ADDRESS_HEADER` | — | Header to read client IP from |
-| `XFF_DEPTH` | `1` | Depth in `x-forwarded-for` chain |
-| `PROTOCOL_HEADER` | — | Header for protocol detection |
-| `HOST_HEADER` | `host` | Header for host detection |
-| `BODY_SIZE_LIMIT` | `524288` | Max request body size in bytes |
+| Variable          | Default   | Description                            |
+| ----------------- | --------- | -------------------------------------- |
+| `HOST`            | `0.0.0.0` | Server host                            |
+| `PORT`            | `3000`    | Server port                            |
+| `SOCKET_PATH`     | —         | Unix socket path (overrides host/port) |
+| `ORIGIN`          | —         | App origin URL                         |
+| `ADDRESS_HEADER`  | —         | Header to read client IP from          |
+| `XFF_DEPTH`       | `1`       | Depth in `x-forwarded-for` chain       |
+| `PROTOCOL_HEADER` | —         | Header for protocol detection          |
+| `HOST_HEADER`     | `host`    | Header for host detection              |
+| `BODY_SIZE_LIMIT` | `524288`  | Max request body size in bytes         |
 
 ---
 
@@ -102,6 +103,7 @@ pnpm format
 ```
 
 **Enable git hooks** (runs lint before commit):
+
 ```bash
 git config core.hookspath .githooks
 ```
@@ -127,6 +129,7 @@ Releases are automated via GitHub Actions (`.github/workflows/release.yml`). A C
 ## CI
 
 `.github/workflows/ci.yml` runs on every PR:
+
 1. Install dependencies (`pnpm install`)
 2. Lint (`pnpm lint`)
 3. Build (`pnpm build`)

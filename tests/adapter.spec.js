@@ -47,17 +47,17 @@ function createMockBuilder(overrides = {}) {
 }
 
 function getDeployManifest() {
-	const call = vi.mocked(fs.writeFileSync).mock.calls.find(([path]) =>
-		String(path).endsWith('deploy-manifest.json')
-	);
+	const call = vi
+		.mocked(fs.writeFileSync)
+		.mock.calls.find(([path]) => String(path).endsWith('deploy-manifest.json'));
 	if (!call) throw new Error('deploy-manifest.json was not written');
 	return JSON.parse(String(call[1]));
 }
 
 function getWrittenPackageJson(out = 'build') {
-	const call = vi.mocked(fs.writeFileSync).mock.calls.find(
-		([path]) => String(path) === `${out}/compute/default/package.json`
-	);
+	const call = vi
+		.mocked(fs.writeFileSync)
+		.mock.calls.find(([path]) => String(path) === `${out}/compute/default/package.json`);
 	if (!call) throw new Error('package.json was not written');
 	return JSON.parse(String(call[1]));
 }
@@ -195,9 +195,7 @@ describe('builder interactions', async () => {
 		const builder = createMockBuilder();
 		await adapter().adapt(builder);
 
-		expect(builder.writePrerendered).toHaveBeenCalledWith(
-			'build/compute/default/prerendered'
-		);
+		expect(builder.writePrerendered).toHaveBeenCalledWith('build/compute/default/prerendered');
 	});
 
 	test('does not call builder.compress when precompress is false (default)', async () => {
@@ -314,9 +312,9 @@ describe('polyfill option', async () => {
 		const builder = createMockBuilder();
 		await adapter({ polyfill: false }).adapt(builder);
 
-		const shimsCall = vi.mocked(fs.writeFileSync).mock.calls.find(([path]) =>
-			String(path).endsWith('shims.js')
-		);
+		const shimsCall = vi
+			.mocked(fs.writeFileSync)
+			.mock.calls.find(([path]) => String(path).endsWith('shims.js'));
 		expect(shimsCall).toBeDefined();
 		expect(shimsCall[1]).toBe('');
 	});
@@ -325,9 +323,9 @@ describe('polyfill option', async () => {
 		const builder = createMockBuilder();
 		await adapter().adapt(builder);
 
-		const shimsCall = vi.mocked(fs.writeFileSync).mock.calls.find(
-			([path, content]) => String(path).endsWith('shims.js') && content === ''
-		);
+		const shimsCall = vi
+			.mocked(fs.writeFileSync)
+			.mock.calls.find(([path, content]) => String(path).endsWith('shims.js') && content === '');
 		expect(shimsCall).toBeUndefined();
 	});
 });
