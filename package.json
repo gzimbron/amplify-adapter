@@ -30,11 +30,7 @@
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"lint": "prettier --check .",
-		"format": "prettier --write .",
-		"release": "changeset publish",
-		"changeset": "changeset",
-		"version:next": "changeset version --tag next",
-		"release:next": "pnpm publish --tag next"
+		"format": "prettier --write ."
 	},
 	"dependencies": {
 		"rolldown": "^1.0.0-beta.1"
