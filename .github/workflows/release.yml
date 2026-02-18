@@ -32,19 +32,24 @@ jobs:
           cache: pnpm
           registry-url: 'https://registry.npmjs.org'
 
+      - name: Upgrade npm
+        run: npm install -g npm@latest
+
       - name: Install dependencies
         run: pnpm install
 
       - name: Build Package
         run: pnpm build
 
-      - name: Create Release Pull Request or Publish to npm
+      - name: Create Release Pull Request
         id: changesets
         uses: changesets/action@v1
-        with:
-          publish: pnpm changeset publish --provenance
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to npm
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        run: pnpm changeset publish --provenance
 
   release-next:
     if: github.ref == 'refs/heads/next'
@@ -68,6 +73,9 @@ jobs:
           node-version: '20.x'
           cache: pnpm
           registry-url: 'https://registry.npmjs.org'
+
+      - name: Upgrade npm
+        run: npm install -g npm@latest
 
       - name: Install dependencies
         run: pnpm install
