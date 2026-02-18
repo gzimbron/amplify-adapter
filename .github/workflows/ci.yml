@@ -46,6 +46,9 @@ jobs:
 
       - run: pnpm lint
 
+      - name: Build Package
+        run: pnpm build
+
   # Tests:
   #   runs-on: ubuntu-latest
   #   steps:
