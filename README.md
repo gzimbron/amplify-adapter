@@ -29,7 +29,40 @@ npm install --save-dev amplify-adapter
 ```js
 // svelte.config.js
 import adapter from 'amplify-adapter';
+
+export default {
+	kit: {
+		adapter: adapter({
+			// Options with their default values:
+			// out: 'build',
+			// precompress: false,
+			// envPrefix: '',
+			// polyfill: true,
+			// copyDevNodeModules: false,
+			// cleanPackageJson: true,
+			// keepPackageDependencies: false,
+			// copyNpmrc: true,
+			// staticCacheMaxAge: 3600,
+			// nodeVersion: 'nodejs22.x',
+		}),
+	},
+};
 ```
+
+## Adapter Options
+
+| Option                    | Type      | Default        | Description                                                                                                              |
+| ------------------------- | --------- | -------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `out`                     | `string`  | `'build'`      | The output directory for the build.                                                                                      |
+| `precompress`             | `boolean` | `false`        | If `true`, precompresses static assets and prerendered pages with gzip and brotli.                                       |
+| `envPrefix`               | `string`  | `''`           | Prefix for environment variables.                                                                                        |
+| `polyfill`                | `boolean` | `true`         | If `true`, includes polyfill shims.                                                                                      |
+| `copyDevNodeModules`      | `boolean` | `false`        | If `true`, copies the `node_modules` folder to the output directory including all devDependencies and dependencies.      |
+| `cleanPackageJson`        | `boolean` | `true`         | If `true`, `devDependencies` and `scripts` are removed from `package.json` in the output directory.                      |
+| `keepPackageDependencies` | `boolean` | `false`        | If `true`, the `dependencies` are kept in the output `package.json`.                                                     |
+| `copyNpmrc`               | `boolean` | `true`         | If `true`, the `.npmrc` file is copied to the output directory.                                                          |
+| `staticCacheMaxAge`       | `number`  | `3600`         | The `max-age` value (in seconds) for the static cache `Cache-Control` header.                                            |
+| `nodeVersion`             | `string`  | `'nodejs22.x'` | The Node.js runtime version for AWS Amplify compute resources. Examples: `'nodejs20.x'`, `'nodejs22.x'`, `'nodejs24.x'`. |
 
 ## Amplify Hosting Integration (CI/CD)
 
