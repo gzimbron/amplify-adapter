@@ -1,5 +1,11 @@
 # amplify-adapter
 
+## 1.3.0
+
+### Minor Changes
+
+- 52f99e3: Add configurable `nodeVersion` adapter option for AWS Amplify compute runtime. Default updated from `nodejs20.x` to `nodejs22.x`.
+
 ## 1.2.3
 
 ### Patch Changes
