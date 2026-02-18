@@ -33,6 +33,9 @@ importers:
       polka:
         specifier: ^1.0.0-next.22
         version: 1.0.0-next.28
+      prettier:
+        specifier: 3.8.1
+        version: 3.8.1
       rimraf:
         specifier: ^5.0.0
         version: 5.0.10
@@ -1139,6 +1142,11 @@ packages:
   prettier@2.8.8:
     resolution: {integrity: sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==}
     engines: {node: '>=10.13.0'}
+    hasBin: true
+
+  prettier@3.8.1:
+    resolution: {integrity: sha512-UOnG6LftzbdaHZcKoPFtOcCKztrQ57WkHDeRD9t/PTQtmT0NHSeWWepj6pS0z/N7+08BHFDQVUrfmfMRcZwbMg==}
+    engines: {node: '>=14'}
     hasBin: true
 
   quansync@0.2.11:
@@ -2488,6 +2496,8 @@ snapshots:
       source-map-js: 1.2.1
 
   prettier@2.8.8: {}
+
+  prettier@3.8.1: {}
 
   quansync@0.2.11: {}
 
