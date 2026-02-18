@@ -140,13 +140,21 @@ describe('deploy-manifest.json', async () => {
 		expect(computeRoute.target.src).toBe('default');
 	});
 
-	test('uses nodejs20.x runtime', async () => {
+	test('uses nodejs22.x runtime by default', async () => {
 		const builder = createMockBuilder();
 		await adapter().adapt(builder);
 
 		const { computeResources } = getDeployManifest();
-		expect(computeResources[0].runtime).toBe('nodejs20.x');
+		expect(computeResources[0].runtime).toBe('nodejs22.x');
 		expect(computeResources[0].entrypoint).toBe('index.js');
+	});
+
+	test('uses custom nodeVersion when provided', async () => {
+		const builder = createMockBuilder();
+		await adapter({ nodeVersion: 'nodejs24.x' }).adapt(builder);
+
+		const { computeResources } = getDeployManifest();
+		expect(computeResources[0].runtime).toBe('nodejs24.x');
 	});
 
 	test('uses staticCacheMaxAge option in cache-control header', async () => {

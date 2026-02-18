@@ -48,6 +48,13 @@ interface AdapterOptions {
 	 * If true, the dependencies are kept in the output package.json
 	 */
 	keepPackageDependencies?: boolean;
+
+	/**
+	 * Default: 'nodejs22.x'
+	 * The Node.js runtime version for AWS Amplify compute resources.
+	 * Examples: 'nodejs20.x', 'nodejs22.x', 'nodejs24.x'
+	 */
+	nodeVersion?: string;
 }
 
 export default function plugin(options?: AdapterOptions): Adapter;

@@ -15,6 +15,7 @@ export default function (opts = {}) {
 		keepPackageDependencies = false,
 		copyNpmrc = true,
 		staticCacheMaxAge = 3600,
+		nodeVersion = 'nodejs22.x',
 	} = opts;
 
 	const buildername = 'amplify-adapter';
@@ -151,7 +152,7 @@ export default function (opts = {}) {
 					computeResources: [
 						{
 							name: 'default',
-							runtime: 'nodejs20.x',
+							runtime: nodeVersion,
 							entrypoint: 'index.js',
 						},
 					],
