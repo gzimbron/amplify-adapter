@@ -2,7 +2,7 @@
 
 [Adapter](https://kit.svelte.dev/docs/adapters) for SvelteKit apps to Amplify Host CI/CD.
 
-Este paquete se creó para adaptar el paquete @sveltejs/node-adapter para su uso con CI/CD en AWS Amplify + SSR. Este paquete incluye los siguientes cambios:
+Este paquete se creó para adaptar el paquete @sveltejs/adapter-node para su uso con CI/CD en AWS Amplify + SSR. Este paquete incluye los siguientes cambios:
 
 Limitations:
 
