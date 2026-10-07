@@ -6,15 +6,18 @@ declare module 'HANDLER' {
 	export const handler: import('polka').Middleware;
 }
 
-declare module 'MANIFEST' {
-	import { SSRManifest } from '@sveltejs/kit';
-
-	export const manifest: SSRManifest;
+declare module 'PRERENDERED' {
 	export const prerendered: Set<string>;
 }
 
 declare module 'SERVER' {
-	export { Server } from '@sveltejs/kit';
+	// the object returned by `create_server(manifest)` — see
+	// https://svelte.dev/docs/kit/@sveltejs-kit#Server, or (SvelteKit 2 fallback)
+	// `new Server(manifest)`, which has the same `init`/`respond` shape.
+	export const server: {
+		init(opts: { env: Record<string, string> }): Promise<void>;
+		respond: InstanceType<typeof import('@sveltejs/kit').Server>['respond'];
+	};
 }
 
 declare namespace App {

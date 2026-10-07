@@ -3,6 +3,7 @@ import './ambient.js';
 
 declare global {
 	const ENV_PREFIX: string;
+	const APP_PATH: string;
 }
 
 interface AdapterOptions {

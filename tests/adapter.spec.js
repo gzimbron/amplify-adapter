@@ -38,6 +38,8 @@ function createMockBuilder(overrides = {}) {
 		compress: vi.fn().mockResolvedValue(undefined),
 		writeServer: vi.fn(),
 		generateManifest: vi.fn().mockReturnValue('{ /* manifest */ }'),
+		generateServerInstance: vi.fn(),
+		getAppPath: vi.fn().mockReturnValue('_app'),
 		prerendered: { paths: [] },
 		copy: vi.fn(),
 		hasServerInstrumentationFile: vi.fn().mockReturnValue(false),
@@ -257,6 +259,60 @@ describe('builder interactions', async () => {
 
 		const nodeModulesCall = builder.copy.mock.calls.find(([src]) => src === 'node_modules');
 		expect(nodeModulesCall).toBeUndefined();
+	});
+});
+
+describe('server/manifest generation', async () => {
+	const { default: adapter } = await import('../index.js');
+
+	beforeEach(() => {
+		vi.mocked(fs.writeFileSync).mockClear();
+	});
+
+	test('SvelteKit 3: uses generateServerInstance, not generateManifest', async () => {
+		const builder = createMockBuilder();
+		await adapter().adapt(builder);
+
+		expect(builder.generateServerInstance).toHaveBeenCalledWith(
+			expect.stringContaining('server.js'),
+			expect.objectContaining({ serverDirectory: expect.any(String) })
+		);
+		expect(builder.generateManifest).not.toHaveBeenCalled();
+	});
+
+	test('SvelteKit 2 fallback: builds server.js from generateManifest + Server when generateServerInstance is absent', async () => {
+		const builder = createMockBuilder({ generateServerInstance: undefined });
+		await adapter().adapt(builder);
+
+		expect(builder.generateManifest).toHaveBeenCalledWith({ relativePath: './' });
+
+		const serverCall = vi
+			.mocked(fs.writeFileSync)
+			.mock.calls.find(([path]) => String(path).endsWith('server.js'));
+		expect(serverCall).toBeDefined();
+		expect(serverCall[1]).toContain("import { Server } from './index.js';");
+		expect(serverCall[1]).toContain('new Server(manifest)');
+	});
+
+	test('writes prerendered.js with the prerendered paths', async () => {
+		const builder = createMockBuilder({ prerendered: { paths: ['/foo', '/bar'] } });
+		await adapter().adapt(builder);
+
+		const prerenderedCall = vi
+			.mocked(fs.writeFileSync)
+			.mock.calls.find(([path]) => String(path).endsWith('prerendered.js'));
+		expect(prerenderedCall).toBeDefined();
+		expect(prerenderedCall[1]).toContain('"/foo"');
+		expect(prerenderedCall[1]).toContain('"/bar"');
+	});
+
+	test('replaces APP_PATH placeholder with builder.getAppPath()', async () => {
+		const builder = createMockBuilder({ getAppPath: vi.fn().mockReturnValue('custom_app') });
+		await adapter().adapt(builder);
+
+		const replaceCall = builder.copy.mock.calls.find(([, , opts]) => opts?.replace?.APP_PATH);
+		expect(replaceCall).toBeDefined();
+		expect(replaceCall[2].replace.APP_PATH).toBe(JSON.stringify('custom_app'));
 	});
 });
 

@@ -50,10 +50,24 @@ export default function (opts = {}) {
 
 			builder.writeServer(tmp);
 
+			// SvelteKit 3 removed `generateManifest()` in favour of `generateServerInstance()`,
+			// which writes a ready-to-use `server` export (manifest already applied via
+			// `create_server`). SvelteKit 2 has no `generateServerInstance`, so fall back to
+			// building the same shape by hand from the old `generateManifest()` + `Server` class.
+			if (typeof builder.generateServerInstance === 'function') {
+				builder.generateServerInstance(`${tmp}/server.js`, { serverDirectory: tmp });
+			} else {
+				writeFileSync(
+					`${tmp}/server.js`,
+					`import { Server } from './index.js';\n\n` +
+						`const manifest = ${builder.generateManifest({ relativePath: './' })};\n` +
+						`export const server = new Server(manifest);\n`
+				);
+			}
+
 			writeFileSync(
-				`${tmp}/manifest.js`,
-				`export const manifest = ${builder.generateManifest({ relativePath: './' })};\n\n` +
-					`export const prerendered = new Set(${JSON.stringify(builder.prerendered.paths)});\n`
+				`${tmp}/prerendered.js`,
+				`export const prerendered = new Set(${JSON.stringify(builder.prerendered.paths)});\n`
 			);
 
 			const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
@@ -61,7 +75,8 @@ export default function (opts = {}) {
 			/** @type {Record<string, string>} */
 			const input = {
 				index: `${tmp}/index.js`,
-				manifest: `${tmp}/manifest.js`,
+				server: `${tmp}/server.js`,
+				prerendered: `${tmp}/prerendered.js`,
 			};
 
 			if (builder.hasServerInstrumentationFile?.()) {
@@ -104,10 +119,11 @@ export default function (opts = {}) {
 					replace: {
 						ENV: './env.js',
 						HANDLER: './handler.js',
-						MANIFEST: './server/manifest.js',
-						SERVER: './server/index.js',
+						SERVER: './server/server.js',
+						PRERENDERED: './server/prerendered.js',
 						SHIMS: './shims.js',
 						ENV_PREFIX: JSON.stringify(envPrefix),
+						APP_PATH: JSON.stringify(builder.getAppPath()),
 					},
 				});
 			}
