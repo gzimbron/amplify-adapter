@@ -43,6 +43,8 @@ function createMockBuilder(overrides = {}) {
 		prerendered: { paths: [] },
 		copy: vi.fn(),
 		hasServerInstrumentationFile: vi.fn().mockReturnValue(false),
+		createInstrumentationInitializer: vi.fn().mockReturnValue('/tmp/__sveltekit_env_init.js'),
+		instrument: vi.fn(),
 		config: { kit: { paths: { base: '' } } },
 		...overrides,
 	};
@@ -313,6 +315,45 @@ describe('server/manifest generation', async () => {
 		const replaceCall = builder.copy.mock.calls.find(([, , opts]) => opts?.replace?.APP_PATH);
 		expect(replaceCall).toBeDefined();
 		expect(replaceCall[2].replace.APP_PATH).toBe(JSON.stringify('custom_app'));
+	});
+});
+
+describe('server instrumentation (e.g. Sentry)', async () => {
+	const { default: adapter } = await import('../index.js');
+
+	test('does nothing when there is no instrumentation file', async () => {
+		const builder = createMockBuilder();
+		await adapter().adapt(builder);
+
+		expect(builder.createInstrumentationInitializer).not.toHaveBeenCalled();
+		expect(builder.instrument).not.toHaveBeenCalled();
+	});
+
+	test('SvelteKit 3: builds an initializer pointed at the bundled server dir and passes it through', async () => {
+		const builder = createMockBuilder({
+			hasServerInstrumentationFile: vi.fn().mockReturnValue(true),
+		});
+		await adapter({ out: 'dist' }).adapt(builder);
+
+		expect(builder.createInstrumentationInitializer).toHaveBeenCalledWith({
+			outputDirectory: 'dist/compute/default/server',
+			serverDirectory: 'dist/compute/default/server',
+		});
+		expect(builder.instrument).toHaveBeenCalledWith(
+			expect.objectContaining({ initializer: '/tmp/__sveltekit_env_init.js' })
+		);
+	});
+
+	test('SvelteKit 2 fallback: instrument is still called without an initializer when createInstrumentationInitializer is absent', async () => {
+		const builder = createMockBuilder({
+			hasServerInstrumentationFile: vi.fn().mockReturnValue(true),
+			createInstrumentationInitializer: undefined,
+		});
+		await adapter().adapt(builder);
+
+		expect(builder.instrument).toHaveBeenCalledWith(
+			expect.objectContaining({ initializer: undefined })
+		);
 	});
 });
 

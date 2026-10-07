@@ -81,6 +81,12 @@ export default function (opts = {}) {
 
 			if (builder.hasServerInstrumentationFile?.()) {
 				input['instrumentation.server'] = `${tmp}/instrumentation.server.js`;
+				// SvelteKit 3's createInstrumentationInitializer() (see below) imports
+				// `set_env` from this module, so it needs to survive as its own bundled,
+				// self-contained chunk at the same relative path it already expects.
+				if (typeof builder.createInstrumentationInitializer === 'function') {
+					input.env = `${tmp}/env.js`;
+				}
 			}
 
 			// we bundle the Vite output so that deployments only need
@@ -129,9 +135,20 @@ export default function (opts = {}) {
 			}
 
 			if (builder.hasServerInstrumentationFile?.()) {
+				// SvelteKit 3's Builder.instrument() requires an `initializer` (absent in
+				// SvelteKit 2, where it's simply ignored) that sets explicit env vars before
+				// the instrumentation module runs. It must point at our bundled server dir,
+				// not the default `${config.outDir}/output/server`, since that's where the
+				// `env` chunk above actually ends up.
+				const initializer = builder.createInstrumentationInitializer?.({
+					outputDirectory: `${computePath}/server`,
+					serverDirectory: `${computePath}/server`,
+				});
+
 				builder.instrument?.({
 					entrypoint: `${computePath}/index.js`,
 					instrumentation: `${computePath}/server/instrumentation.server.js`,
+					initializer,
 					module: {
 						exports: ['path', 'host', 'port', 'server'],
 					},
