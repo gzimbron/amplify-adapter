@@ -25,6 +25,7 @@
 		"index.d.ts"
 	],
 	"scripts": {
+		"prepare": "rimraf files && rolldown -c",
 		"dev": "rimraf files && rolldown -w -c",
 		"build": "rimraf files && rolldown -c",
 		"test": "vitest run",
