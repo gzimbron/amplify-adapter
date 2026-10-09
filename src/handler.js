@@ -5,13 +5,12 @@ import sirv from 'sirv';
 import { fileURLToPath } from 'node:url';
 import { parse as polka_url_parser } from '@polka/url';
 import { getRequest, setResponse } from '@sveltejs/kit/node';
-import { Server } from 'SERVER';
-import { manifest, prerendered } from 'MANIFEST';
+import { server } from 'SERVER';
+import { prerendered } from 'PRERENDERED';
 import { env } from 'ENV';
 
-/* global ENV_PREFIX */
+/* global ENV_PREFIX, APP_PATH */
 
-const server = new Server(manifest);
 await server.init({ env: process.env });
 const origin = env('ORIGIN', undefined);
 const xff_depth = parseInt(env('XFF_DEPTH', '1'));
@@ -37,7 +36,7 @@ function serve(path, client = false) {
 				client &&
 				((res, pathname) => {
 					// only apply to build directory, not e.g. version.json
-					if (pathname.startsWith(`/${manifest.appPath}/immutable/`) && res.statusCode === 200) {
+					if (pathname.startsWith(`/${APP_PATH}/immutable/`) && res.statusCode === 200) {
 						res.setHeader('cache-control', 'public,max-age=31536000,immutable');
 					}
 				}),

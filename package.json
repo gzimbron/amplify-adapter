@@ -25,6 +25,7 @@
 		"index.d.ts"
 	],
 	"scripts": {
+		"prepare": "rimraf files && rolldown -c",
 		"dev": "rimraf files && rolldown -w -c",
 		"build": "rimraf files && rolldown -c",
 		"test": "vitest run",
@@ -51,6 +52,6 @@
 		"vitest": "^3.0.0"
 	},
 	"peerDependencies": {
-		"@sveltejs/kit": "^2.4.0"
+		"@sveltejs/kit": "^2.4.0 || ^3.0.0"
 	}
 }
