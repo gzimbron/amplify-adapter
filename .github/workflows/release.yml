@@ -32,8 +32,8 @@ jobs:
           cache: pnpm
           registry-url: 'https://registry.npmjs.org'
 
-      - name: Install npm 12
-        run: npm install -g npm@12
+      - name: Install npm 11
+        run: npm install -g npm@11
 
       - name: Install dependencies
         run: pnpm install
@@ -72,8 +72,8 @@ jobs:
           cache: pnpm
           registry-url: 'https://registry.npmjs.org'
 
-      - name: Install npm 12
-        run: npm install -g npm@12
+      - name: Install npm 11
+        run: npm install -g npm@11
 
       - name: Install dependencies
         run: pnpm install
