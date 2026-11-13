@@ -35,8 +35,12 @@ export default function (opts = {}) {
 			builder.mkdirp(tmp);
 
 			builder.log.minor('Copying assets');
-			builder.writeClient(`${out}/static${builder.config.kit.paths.base}`);
-			builder.writePrerendered(`${computePath}/prerendered${builder.config.kit.paths.base}`);
+			// SvelteKit 3 puts `paths` on the config itself and warns on any read of `config.kit`;
+			// SvelteKit 2 only has `config.kit.paths`. Reading `config.paths` first means Kit 3
+			// never touches the deprecated getter.
+			const { base } = builder.config.paths ?? builder.config.kit.paths;
+			builder.writeClient(`${out}/static${base}`);
+			builder.writePrerendered(`${computePath}/prerendered${base}`);
 
 			if (precompress) {
 				builder.log.minor('Compressing assets');
